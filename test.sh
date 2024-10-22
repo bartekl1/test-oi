@@ -30,4 +30,9 @@ done
 
 percentage=$(echo "($passed)*100/$tests" | bc)
 
-echo -e "\n$percentage% tests passed"
+if [ $tests = $passed ]; then
+    echo -ne "\n✅"
+else
+    echo -ne "\n❌"
+fi
+echo -e " $passed of $tests ($percentage%) tests passed"
