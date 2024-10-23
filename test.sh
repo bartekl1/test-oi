@@ -11,6 +11,30 @@ fi
 tests=0
 passed=0
 
+abort_testing() {
+    echo -ne "\n🛑 Received SIGINT, testing aborted"
+    finish_testing
+}
+
+finish_testing() {
+    percentage=$(echo "($passed)*100/$tests" | bc)
+
+    if [ $tests = $passed ]; then
+        echo -ne "\n✅"
+    else
+        echo -ne "\n❌"
+    fi
+    echo -e " $passed of $tests ($percentage%) tests passed"
+    
+    if [ $tests = $passed ]; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
+trap abort_testing SIGINT
+
 for test_in in "$tests_path"/*.in; do
     output=$($exe_path < $test_in)
     test_out=$(basename -- "$test_in")
@@ -28,11 +52,4 @@ for test_in in "$tests_path"/*.in; do
     fi
 done
 
-percentage=$(echo "($passed)*100/$tests" | bc)
-
-if [ $tests = $passed ]; then
-    echo -ne "\n✅"
-else
-    echo -ne "\n❌"
-fi
-echo -e " $passed of $tests ($percentage%) tests passed"
+finish_testing
